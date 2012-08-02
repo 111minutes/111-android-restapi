@@ -1,0 +1,21 @@
+#Android generated
+bin
+gen
+local.properties
+proguard.cfg
+
+
+#Eclipse
+.project
+.classpath
+.settings
+
+#IntelliJ IDEA
+.idea
+*.iml
+
+#Other
+*~
+*.DS_Store
+*.class
+*.checkstyle
