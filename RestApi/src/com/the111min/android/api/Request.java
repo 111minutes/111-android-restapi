@@ -112,6 +112,10 @@ public class Request implements Parcelable {
         mTemporaryData.putString(key, value);
     }
 
+    private void addTemporaryData(String key, boolean value) {
+        mTemporaryData.putBoolean(key, value);
+    }
+
     @SuppressWarnings("unchecked")
     private Request(Parcel in) {
         mEndpoint = in.readString();
@@ -224,6 +228,11 @@ public class Request implements Parcelable {
          * @return
          */
         public Builder addTemporaryData(String key, String value) {
+            mRequest.addTemporaryData(key, value);
+            return this;
+        }
+
+        public Builder addTemporaryData(String key, boolean value) {
             mRequest.addTemporaryData(key, value);
             return this;
         }
