@@ -20,6 +20,8 @@ public class Request implements Parcelable {
     private Bundle mHeaderParams;
     private Bundle mTemporaryData;
 
+    private String mStringEntity;
+
     private RequestMethod mRequestMethod;
 
     private Class<? extends ResponseHandler> mResponseHandler;
@@ -44,6 +46,10 @@ public class Request implements Parcelable {
      */
     public RequestMethod getRequestMethod() {
         return mRequestMethod;
+    }
+
+    public String getStringEntity() {
+        return mStringEntity;
     }
 
     /**
@@ -92,6 +98,10 @@ public class Request implements Parcelable {
         mResponseHandler = responseHandler;
     }
 
+    private void setEntity(String string) {
+        mStringEntity = string;
+    }
+
     private void addHeaderParam(String key, String value) {
         mHeaderParams.putString(key, value);
     }
@@ -122,6 +132,8 @@ public class Request implements Parcelable {
         mBodyParams = in.readBundle();
         mTemporaryData = in.readBundle();
         mHeaderParams = in.readBundle();
+        mStringEntity = in.readString();
+
         String handlerClassName = in.readString();
         mRequestMethod = RequestMethod.valueOf(in.readString());
         try {
@@ -137,6 +149,7 @@ public class Request implements Parcelable {
         dest.writeBundle(mBodyParams);
         dest.writeBundle(mTemporaryData);
         dest.writeBundle(mHeaderParams);
+        dest.writeString(mStringEntity);
         dest.writeString(mResponseHandler.getName());
         dest.writeString(mRequestMethod.name());
     }
@@ -157,10 +170,6 @@ public class Request implements Parcelable {
         return 0;
     }
 
-    /**
-     * @author Kirill
-     *
-     */
     public static class Builder {
 
         private Request mRequest;
@@ -179,6 +188,16 @@ public class Request implements Parcelable {
          */
         public Builder setResponseHandler(Class<? extends ResponseHandler> responseHandler) {
             mRequest.setResponseHandler(responseHandler);
+            return this;
+        }
+
+        /**
+         * When StringEntity is set, all bodyParams are ignored. 
+         * @param entity
+         * @return
+         */
+        public Builder setStringEntity(String string) {
+            mRequest.setEntity(string);
             return this;
         }
 
@@ -232,6 +251,11 @@ public class Request implements Parcelable {
             return this;
         }
 
+        /**
+         * @param key
+         * @param value
+         * @return
+         */
         public Builder addTemporaryData(String key, boolean value) {
             mRequest.addTemporaryData(key, value);
             return this;
