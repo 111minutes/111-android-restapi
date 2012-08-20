@@ -9,8 +9,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import com.commonsware.cwac.wakeful.WakefulIntentService;
-
 import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
 
