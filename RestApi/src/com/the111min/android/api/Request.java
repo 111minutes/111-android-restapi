@@ -4,7 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+
+import org.apache.log4j.Logger;
 
 /**
  * Use for: 1. Set header and body parameters for http request; 2. Pass data
@@ -12,7 +13,7 @@ import android.util.Log;
  */
 public class Request implements Parcelable {
 
-    private static final String TAG = "Request";
+    private final Logger log = Logger.getLogger(HttpManager.class);
 
     private String mEndpoint;
 
@@ -87,9 +88,9 @@ public class Request implements Parcelable {
         try {
             return mResponseHandler.newInstance();
         } catch (IllegalAccessException e) {
-            Log.e(TAG, e.getMessage(), e);
+            log.error(e.getMessage(), e);
         } catch (InstantiationException e) {
-            Log.e(TAG, e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return null;
     }

@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+Version 4
+----------------------------
+* Impoved logging functionality added
+
 Version 3
 ----------------------------
 

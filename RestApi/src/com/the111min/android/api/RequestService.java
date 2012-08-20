@@ -8,9 +8,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.util.Log;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.apache.http.HttpResponse;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -31,7 +33,7 @@ import java.util.ArrayList;
  * 
  * </code>
  */
-public class RequestService extends IntentService {
+public class RequestService extends WakefulIntentService {
 
     private static final String TAG = RequestService.class.getSimpleName();
 
@@ -46,6 +48,8 @@ public class RequestService extends IntentService {
     static final int STATUS_ERROR = 1;
     static final int STATUS_OK = 2;
 
+    private final Logger log = Logger.getLogger(RequestService.class);
+
     private ResultReceiver mReceiver;
 
     public RequestService() {
@@ -53,7 +57,7 @@ public class RequestService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void doWakefulWork(Intent intent) {
         mReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
         int token = intent.getIntExtra(EXTRA_TOKEN, BaseApiHelper.DEFAULT_TOKEN);
 
@@ -72,15 +76,15 @@ public class RequestService extends IntentService {
 
                 lastResponse = handler.handleResponse(this, httpResponse, request);
             } catch (IOException e) {
-                Log.e(TAG, e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 sendError(e, token);
                 return;
             } catch (URISyntaxException e) {
-                Log.e(TAG, e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 sendError(e, token);
                 return;
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
+                log.error(e.getMessage(), e);
                 sendError(e, token);
                 return;
             }
