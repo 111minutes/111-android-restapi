@@ -8,9 +8,16 @@
         android:targetSdkVersion="4" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+	<uses-permission android:name="android.permission.WAKE_LOCK"/>		
 
     <application>
         <service android:name=".RequestService" />
+        <receiver android:name="com.the111min.android.api.AlarmReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+			</intent-filter>
+		</receiver>
     </application>
 
 </manifest>
