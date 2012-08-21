@@ -2,7 +2,6 @@ package com.the111min.android.api;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.the111min.android.api.Request.RequestMethod;
 
@@ -22,6 +21,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -31,11 +31,10 @@ import java.util.ArrayList;
 
 /**
  * This class manages connection to server via POST, GET, PUT, DELETE methods.
- * @author Dmitry Dobritskiy
  */
 class HttpManager {
 
-    private static final String TAG = HttpManager.class.getSimpleName();
+    private final static Logger LOG = Logger.getLogger(HttpManager.class);
 
     public static HttpResponse sendRequest(Request request)
             throws IOException,
@@ -68,7 +67,6 @@ class HttpManager {
             ArrayList<NameValuePair> headerParams) {
         for (NameValuePair nameValuePair : headerParams)
             httpRequest.addHeader(nameValuePair.getName(), nameValuePair.getValue());
-
     }
 
     private static HttpRequestBase getHttpRequest(Request request) throws URISyntaxException,
@@ -79,34 +77,35 @@ class HttpManager {
         if (TextUtils.isEmpty(request.getStringEntity())) {
             final ArrayList<NameValuePair> bodyParams = HttpUtils.getPairsFromBundle(request.getBodyParams());
             entity = new UrlEncodedFormEntity(bodyParams, "UTF-8");
-            if (BuildConfig.DEBUG) Log.d(TAG, "request body: " + bodyParams.toString());
+            LOG.debug("request body: " + bodyParams.toString());
         } else {
             entity = new StringEntity(request.getStringEntity(), "UTF-8");
+            //TODO: add ability to set content type
             entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-            if (BuildConfig.DEBUG) Log.d(TAG, "request body: " + request.getStringEntity());
+            LOG.debug("request body: " + request.getStringEntity());
         }
 
         final URI uri = new URI(request.getEndpoint().replace(" ", "%20"));
 
         switch (method) {
             case GET:
-                if (BuildConfig.DEBUG) Log.d(TAG, "Sending GET " + request.getEndpoint());
+                LOG.debug("Sending GET " + request.getEndpoint());
                 return new HttpGet(uri);
 
             case POST:
-                if (BuildConfig.DEBUG) Log.d(TAG, "Sending POST " + request.getEndpoint());
+                LOG.debug("Sending POST " + request.getEndpoint());
                 final HttpPost post = new HttpPost(uri);
                 post.setEntity(entity);
                 return post;
 
             case PUT:
-                if (BuildConfig.DEBUG) Log.d(TAG, "Sending PUT " + request.getEndpoint());
+                LOG.debug("Sending PUT " + request.getEndpoint());
                 final HttpPut put = new HttpPut(uri);
                 put.setEntity(entity);
                 return put;
 
             case DELETE:
-                if (BuildConfig.DEBUG) Log.d(TAG, "Sending DELETE " + request.getEndpoint());
+                LOG.debug("Sending DELETE " + request.getEndpoint());
                 return new HttpDelete(uri);
 
             default:

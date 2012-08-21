@@ -98,4 +98,10 @@ public class Response implements Parcelable {
         }
     };
 
+    @Override
+    public String toString() {
+        return "Response [mIsSuccessed=" + mIsSuccessed + ", mError=" + mError
+                + ", mResults=" + mResults + "]";
+    }
+
 }

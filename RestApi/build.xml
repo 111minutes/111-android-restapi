@@ -9,6 +9,7 @@
    
    <!-- Standard jar stuff -->
    <property name="lib.dir" value="${sdk.dir}/platforms/${target}" />
+   <property name="libs.dir" value="./libs" />
    <property name="build.dir" value="./build" />
    <property name="classes.dir" value="${build.dir}/classes" />
    <property name="src.dir" value="./src" />
@@ -18,6 +19,7 @@
    <!-- Set up classpath -->
    <path id="classpath">
       <fileset dir="${lib.dir}" includes="**/*.jar" />
+      <fileset dir="${libs.dir}" includes="**/*.jar"/>
    </path>
    
    <!-- Clean out the build files -->

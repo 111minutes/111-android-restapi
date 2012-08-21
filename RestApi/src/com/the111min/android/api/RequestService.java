@@ -8,9 +8,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.util.Log;
+
+import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.apache.http.HttpResponse;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -18,11 +20,13 @@ import java.util.ArrayList;
 
 /**
  * RequestService is a {@link IntentService}s that handles {@link Request} asynchronously.
- * <p> Required permissions:
+ * <p>Required permissions:
  * <ul>
  * <li>android.permission.INTERNET
  * <li>android.permission.ACCESS_NETWORK_STATE
- * </ul> 
+ * <li>android.permission.WAKE_LOCK
+ * </ul>
+ * 
  * Manifest registration is required:
  * 
  * <pre>
@@ -31,9 +35,11 @@ import java.util.ArrayList;
  * 
  * </code>
  */
-public class RequestService extends IntentService {
+public class RequestService extends WakefulIntentService {
 
     private static final String TAG = RequestService.class.getSimpleName();
+
+    private static final Logger LOG = Logger.getLogger(RequestService.class);
 
     private static final String PACKAGE = "com.the111min.android.api.";
 
@@ -53,7 +59,7 @@ public class RequestService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void doWakefulWork(Intent intent) {
         mReceiver = intent.getParcelableExtra(EXTRA_STATUS_RECEIVER);
         int token = intent.getIntExtra(EXTRA_TOKEN, BaseApiHelper.DEFAULT_TOKEN);
 
@@ -72,15 +78,15 @@ public class RequestService extends IntentService {
 
                 lastResponse = handler.handleResponse(this, httpResponse, request);
             } catch (IOException e) {
-                Log.e(TAG, e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 sendError(e, token);
                 return;
             } catch (URISyntaxException e) {
-                Log.e(TAG, e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 sendError(e, token);
                 return;
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 sendError(e, token);
                 return;
             }
