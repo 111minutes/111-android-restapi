@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.the111min.android.api.Request.RequestMethod;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -15,11 +14,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -33,7 +35,7 @@ import java.util.ArrayList;
  */
 class HttpManager {
 
-    private static final String TAG = HttpManager.class.getName();
+    private static final String TAG = HttpManager.class.getSimpleName();
 
     public static HttpResponse sendRequest(Request request)
             throws IOException,
@@ -73,13 +75,15 @@ class HttpManager {
             UnsupportedEncodingException {
         final RequestMethod method = request.getRequestMethod();
 
-        HttpEntity entity = null;
+        AbstractHttpEntity entity = null;
         if (TextUtils.isEmpty(request.getStringEntity())) {
             final ArrayList<NameValuePair> bodyParams = HttpUtils.getPairsFromBundle(request.getBodyParams());
             entity = new UrlEncodedFormEntity(bodyParams, "UTF-8");
             if (BuildConfig.DEBUG) Log.d(TAG, "request body: " + bodyParams.toString());
         } else {
             entity = new StringEntity(request.getStringEntity(), "UTF-8");
+            entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+            if (BuildConfig.DEBUG) Log.d(TAG, "request body: " + request.getStringEntity());
         }
 
         final URI uri = new URI(request.getEndpoint().replace(" ", "%20"));
