@@ -17,12 +17,14 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 /**
- * RequestService is a {@link IntentService}s that handles {@link Request} asynchronously.
- * <p> Required permissions:
+ * RequestService is a {@link IntentService}s that handles {@link Request}
+ * asynchronously.
+ * <p>
+ * Required permissions:
  * <ul>
  * <li>android.permission.INTERNET
  * <li>android.permission.ACCESS_NETWORK_STATE
- * </ul> 
+ * </ul>
  * Manifest registration is required:
  * 
  * <pre>
@@ -37,14 +39,15 @@ public class RequestService extends WakefulIntentService {
 
     private static final String PACKAGE = "com.the111min.android.api.";
 
-    static final String EXTRA_REQUESTS = PACKAGE + "EXTRA_REQUESTS";
-    static final String EXTRA_STATUS_RECEIVER = PACKAGE + "EXTRA_RECEIVER";
-    static final String EXTRA_RESPONSE_ERROR_CODE = PACKAGE + "EXTRA_ERROR";
-    static final String EXTRA_RESPONSE = PACKAGE + "EXTRA_RESPONSE";
-    static final String EXTRA_TOKEN = PACKAGE + "EXTRA_TOKEN";
+    public static final String EXTRA_REQUESTS = PACKAGE + "EXTRA_REQUESTS";
+    public static final String EXTRA_STATUS_RECEIVER = PACKAGE + "EXTRA_RECEIVER";
+    public static final String EXTRA_RESPONSE_ERROR_CODE = PACKAGE + "EXTRA_ERROR";
+    public static final String EXTRA_RESPONSE = PACKAGE + "EXTRA_RESPONSE";
+    public static final String EXTRA_TOKEN = PACKAGE + "EXTRA_TOKEN";
+    public static final String EXTRA_RESPONSE_ERROR_MESSAGE = PACKAGE + "EXTRA_ERROR_MESSAGE";
 
-    static final int STATUS_ERROR = 1;
-    static final int STATUS_OK = 2;
+    public static final int STATUS_ERROR = 1;
+    public static final int STATUS_OK = 2;
 
     private final Logger log = Logger.getLogger(RequestService.class);
 
