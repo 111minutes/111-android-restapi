@@ -2,6 +2,7 @@ package com.the111min.android.api;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.the111min.android.api.Request.RequestMethod;
 
@@ -21,7 +22,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -34,33 +34,35 @@ import java.util.ArrayList;
  */
 class HttpManager {
 
-    private final static Logger LOG = Logger.getLogger(HttpManager.class);
+    private static final String TAG = RequestService.class.getSimpleName();
+
+    private static DefaultHttpClient sHttpClient;
 
     public static HttpResponse sendRequest(Request request)
-            throws IOException,
-            URISyntaxException {
+            throws IOException, URISyntaxException {
         final HttpRequestBase httpRequest = getHttpRequest(request);
-
         final Bundle headerParams = request.getHeaders();
-
         final ArrayList<NameValuePair> headerParamsPair = HttpUtils.getPairsFromBundle(headerParams);
 
         setupHeader(httpRequest, headerParamsPair);
 
-        final DefaultHttpClient client = new DefaultHttpClient();
+        return getHttpClient().execute(httpRequest);
+    }
 
-        final HttpParams httpParameters = new BasicHttpParams();
-        // Set the timeout in milliseconds until a connection is established.
-        int timeoutConnection = 10000;
-        HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-        // Set the default socket timeout (SO_TIMEOUT) 
-        // in milliseconds which is the timeout for waiting for data.
-        int timeoutSocket = 10000;
-        HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+    private static DefaultHttpClient getHttpClient() {
+        if (sHttpClient == null) {
+            sHttpClient = new DefaultHttpClient();
+            final HttpParams httpParameters = new BasicHttpParams();
 
-        client.setParams(httpParameters);
+            int timeoutConnection = 30000;
+            int timeoutSocket = 30000;
 
-        return client.execute(httpRequest);
+            HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
+            HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
+
+            sHttpClient.setParams(httpParameters);
+        }
+        return sHttpClient;
     }
 
     private static void setupHeader(HttpRequestBase httpRequest,
@@ -77,35 +79,35 @@ class HttpManager {
         if (TextUtils.isEmpty(request.getStringEntity())) {
             final ArrayList<NameValuePair> bodyParams = HttpUtils.getPairsFromBundle(request.getBodyParams());
             entity = new UrlEncodedFormEntity(bodyParams, "UTF-8");
-            LOG.debug("request body: " + bodyParams.toString());
+            Log.d(TAG, "request body: " + bodyParams.toString());
         } else {
             entity = new StringEntity(request.getStringEntity(), "UTF-8");
             //TODO: add ability to set content type
             entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-            LOG.debug("request body: " + request.getStringEntity());
+            Log.d(TAG, "request body: " + request.getStringEntity());
         }
 
         final URI uri = new URI(request.getEndpoint().replace(" ", "%20"));
 
         switch (method) {
             case GET:
-                LOG.debug("Sending GET " + request.getEndpoint());
+                Log.d(TAG, "Sending GET " + request.getEndpoint());
                 return new HttpGet(uri);
 
             case POST:
-                LOG.debug("Sending POST " + request.getEndpoint());
+                Log.d(TAG, "Sending POST " + request.getEndpoint());
                 final HttpPost post = new HttpPost(uri);
                 post.setEntity(entity);
                 return post;
 
             case PUT:
-                LOG.debug("Sending PUT " + request.getEndpoint());
+                Log.d(TAG, "Sending PUT " + request.getEndpoint());
                 final HttpPut put = new HttpPut(uri);
                 put.setEntity(entity);
                 return put;
 
             case DELETE:
-                LOG.debug("Sending DELETE " + request.getEndpoint());
+                Log.d(TAG, "Sending DELETE " + request.getEndpoint());
                 return new HttpDelete(uri);
 
             default:

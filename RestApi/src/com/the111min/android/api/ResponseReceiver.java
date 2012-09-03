@@ -6,7 +6,6 @@ import android.app.Activity;
  * Listening {@link Activity} must implements {@link ResponseReceiver} for
  * getting result from {@link ResponseHandler}
  */
-
 public interface ResponseReceiver {
 
     /**

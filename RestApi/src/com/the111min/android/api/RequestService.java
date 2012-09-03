@@ -8,14 +8,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.apache.http.HttpResponse;
-import org.apache.log4j.Logger;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 /**
@@ -38,8 +36,6 @@ import java.util.ArrayList;
 public class RequestService extends WakefulIntentService {
 
     private static final String TAG = RequestService.class.getSimpleName();
-
-    private static final Logger LOG = Logger.getLogger(RequestService.class);
 
     private static final String PACKAGE = "com.the111min.android.api.";
 
@@ -77,16 +73,7 @@ public class RequestService extends WakefulIntentService {
                 final ResponseHandler handler = request.getResponseHandler();
 
                 lastResponse = handler.handleResponse(this, httpResponse, request);
-            } catch (IOException e) {
-                LOG.error(e.getMessage(), e);
-                sendError(e, token);
-                return;
-            } catch (URISyntaxException e) {
-                LOG.error(e.getMessage(), e);
-                sendError(e, token);
-                return;
             } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
                 sendError(e, token);
                 return;
             }
@@ -107,9 +94,10 @@ public class RequestService extends WakefulIntentService {
         }
     }
 
-    protected void sendError(Exception exception, int token) {
+    protected void sendError(Exception e, int token) {
+        Log.e(TAG, e.getMessage(), e);
         Bundle bundle = new Bundle();
-        bundle.putSerializable(EXTRA_RESPONSE_ERROR_CODE, exception);
+        bundle.putSerializable(EXTRA_RESPONSE_ERROR_CODE, e);
         bundle.putInt(EXTRA_TOKEN, token);
         sendResult(STATUS_ERROR, bundle);
     }

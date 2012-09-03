@@ -21,16 +21,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 
-import org.apache.log4j.Logger;
-
 /**
  * Proxy {@link ResultReceiver} that offers a listener interface that can be
  * detached. Useful for when sending callbacks to a {@link Service} where a
  * listening {@link Activity} can be swapped out during configuration changes.
  */
 class DetachableResultReceiver extends ResultReceiver {
-
-    private static final Logger LOG = Logger.getLogger(DetachableResultReceiver.class);
 
     private ResponseReceiver mReceiver;
 
@@ -53,14 +49,12 @@ class DetachableResultReceiver extends ResultReceiver {
             switch (resultCode) {
                 case RequestService.STATUS_OK:
                     final Response response = resultData.getParcelable(RequestService.EXTRA_RESPONSE);
-                    LOG.debug("Response: " + response.toString());
                     mReceiver.onRequestSuccess(token, response);
                     break;
 
                 case RequestService.STATUS_ERROR:
                     final Exception exception = (Exception) resultData.getSerializable(
                             RequestService.EXTRA_RESPONSE_ERROR_CODE);
-                    LOG.debug("Error: " + exception.getMessage());
                     mReceiver.onRequestError(token, exception);
                     break;
 
