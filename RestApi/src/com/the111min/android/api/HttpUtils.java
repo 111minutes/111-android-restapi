@@ -2,15 +2,18 @@ package com.the111min.android.api;
 
 import android.os.Bundle;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 public class HttpUtils {
 
@@ -41,8 +44,15 @@ public class HttpUtils {
         BufferedReader reader = null;
         StringBuffer sb = new StringBuffer("");
 
+        Header contentEncoding = response.getFirstHeader("Content-Encoding");
+        InputStream is;
         try {
-            reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+            if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+                is = new GZIPInputStream(response.getEntity().getContent());
+            } else {
+                is = response.getEntity().getContent();
+            }
+            reader = new BufferedReader(new InputStreamReader(is));
             String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line).append("\n");

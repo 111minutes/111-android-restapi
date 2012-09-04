@@ -2,7 +2,6 @@ package com.the111min.android.api;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.the111min.android.api.Request.RequestMethod;
 
@@ -15,26 +14,33 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.AbstractHttpEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * This class manages connection to server via POST, GET, PUT, DELETE methods.
  */
 class HttpManager {
 
-    private static final String TAG = RequestService.class.getSimpleName();
+    private static final String TAG = HttpManager.class.getSimpleName();
+    private static final Logger LOG = LoggerFactory.getLogger(TAG);
+
+    private static final String ENCODING_GZIP = "gzip";
 
     private static DefaultHttpClient sHttpClient;
 
@@ -45,6 +51,8 @@ class HttpManager {
         final ArrayList<NameValuePair> headerParamsPair = HttpUtils.getPairsFromBundle(headerParams);
 
         setupHeader(httpRequest, headerParamsPair);
+
+        httpRequest.addHeader("Accept-Encoding", "gzip");
 
         return getHttpClient().execute(httpRequest);
     }
@@ -67,8 +75,9 @@ class HttpManager {
 
     private static void setupHeader(HttpRequestBase httpRequest,
             ArrayList<NameValuePair> headerParams) {
-        for (NameValuePair nameValuePair : headerParams)
+        for (NameValuePair nameValuePair : headerParams) {
             httpRequest.addHeader(nameValuePair.getName(), nameValuePair.getValue());
+        }
     }
 
     private static HttpRequestBase getHttpRequest(Request request) throws URISyntaxException,
@@ -79,40 +88,67 @@ class HttpManager {
         if (TextUtils.isEmpty(request.getStringEntity())) {
             final ArrayList<NameValuePair> bodyParams = HttpUtils.getPairsFromBundle(request.getBodyParams());
             entity = new UrlEncodedFormEntity(bodyParams, "UTF-8");
-            Log.d(TAG, "request body: " + bodyParams.toString());
+            LOG.debug("request body: " + bodyParams.toString());
         } else {
-            entity = new StringEntity(request.getStringEntity(), "UTF-8");
+            //TODO: temporary fix for TextBuster
+            //entity = new StringEntity(request.getStringEntity(), "UTF-8");
+            entity = toGzippedEntity(request.getStringEntity());
             //TODO: add ability to set content type
-            entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-            Log.d(TAG, "request body: " + request.getStringEntity());
+            entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "gzip/json"));
+            entity.setContentEncoding(ENCODING_GZIP);
+
+            LOG.debug("request body: " + request.getStringEntity());
         }
 
         final URI uri = new URI(request.getEndpoint().replace(" ", "%20"));
 
         switch (method) {
             case GET:
-                Log.d(TAG, "Sending GET " + request.getEndpoint());
+                LOG.debug("Sending GET " + request.getEndpoint());
                 return new HttpGet(uri);
 
             case POST:
-                Log.d(TAG, "Sending POST " + request.getEndpoint());
+                LOG.debug("Sending POST " + request.getEndpoint());
                 final HttpPost post = new HttpPost(uri);
                 post.setEntity(entity);
                 return post;
 
             case PUT:
-                Log.d(TAG, "Sending PUT " + request.getEndpoint());
+                LOG.debug("Sending PUT " + request.getEndpoint());
                 final HttpPut put = new HttpPut(uri);
                 put.setEntity(entity);
                 return put;
 
             case DELETE:
-                Log.d(TAG, "Sending DELETE " + request.getEndpoint());
+                LOG.debug("Sending DELETE " + request.getEndpoint());
                 return new HttpDelete(uri);
 
             default:
                 throw new IllegalArgumentException("Unknown request type. Must be GET, POST, PUT or DELETE");
         }
+    }
+
+    private static AbstractHttpEntity toGzippedEntity(String text) throws
+            UnsupportedEncodingException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        GZIPOutputStream gzos = null;
+
+        try {
+            gzos = new GZIPOutputStream(baos);
+            gzos.write(text.getBytes("UTF-8"));
+        } catch (IOException e1) {
+            LOG.error(e1.getMessage(), e1);
+        } finally {
+            if (gzos != null) try {
+                gzos.close();
+            } catch (IOException ignore) {
+            };
+        }
+
+        byte[] bytes = baos.toByteArray();
+        ByteArrayEntity e = new ByteArrayEntity(bytes);
+
+        return e;
     }
 
 }

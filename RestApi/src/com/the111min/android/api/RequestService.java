@@ -8,11 +8,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.apache.http.HttpResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 public class RequestService extends WakefulIntentService {
 
     private static final String TAG = RequestService.class.getSimpleName();
+    private static final Logger LOG = LoggerFactory.getLogger(TAG);
 
     private static final String PACKAGE = "com.the111min.android.api.";
 
@@ -95,7 +97,7 @@ public class RequestService extends WakefulIntentService {
     }
 
     protected void sendError(Exception e, int token) {
-        Log.e(TAG, e.getMessage(), e);
+        LOG.error(e.getMessage(), e);
         Bundle bundle = new Bundle();
         bundle.putSerializable(EXTRA_RESPONSE_ERROR_CODE, e);
         bundle.putInt(EXTRA_TOKEN, token);
