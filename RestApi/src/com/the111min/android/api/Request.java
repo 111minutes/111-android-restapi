@@ -229,6 +229,15 @@ public class Request implements Parcelable {
         }
 
         /**
+         * @param responseHandler
+         * @return
+         */
+        public Builder setRequestComposer(Class<? extends RequestComposer> requestComposer) {
+            mRequest.setRequestComposer(requestComposer);
+            return this;
+        }
+
+        /**
          * When StringEntity is set, all bodyParams are ignored. 
          * @param entity
          * @return
