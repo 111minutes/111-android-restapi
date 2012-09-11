@@ -12,6 +12,7 @@ import android.os.ResultReceiver;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +44,13 @@ public class RequestService extends WakefulIntentService {
 
     static final String EXTRA_REQUESTS = PACKAGE + "EXTRA_REQUESTS";
     static final String EXTRA_STATUS_RECEIVER = PACKAGE + "EXTRA_RECEIVER";
-    static final String EXTRA_RESPONSE_ERROR_CODE = PACKAGE + "EXTRA_ERROR";
-    static final String EXTRA_RESPONSE = PACKAGE + "EXTRA_RESPONSE";
+
+    static final String EXTRA_RESPONSE_EXCEPTION = PACKAGE + "EXTRA_RESPONSE_EXCEPTION";
     static final String EXTRA_TOKEN = PACKAGE + "EXTRA_TOKEN";
 
-    static final int STATUS_ERROR = 1;
-    static final int STATUS_OK = 2;
+    static final int STATUS_REQUEST_SUCCESS = 1;
+    static final int STATUS_REQUEST_FAILED = 2;
+    static final int STATUS_ERROR = 3;
 
     private ResultReceiver mReceiver;
 
@@ -62,32 +64,37 @@ public class RequestService extends WakefulIntentService {
         int token = intent.getIntExtra(EXTRA_TOKEN, BaseApiHelper.DEFAULT_TOKEN);
 
         if (!isInternetAvailable()) {
-            sendError(new NetworkErrorException(), token);
+            sendError(token, new NetworkErrorException());
             return;
         }
 
         final ArrayList<Request> requests = intent.getParcelableArrayListExtra(EXTRA_REQUESTS);
 
-        Response lastResponse = null;
+        Bundle lastResultData = null;
+        boolean lastResult = true;
         for (Request request : requests) {
             try {
-                final HttpResponse httpResponse = HttpManager.sendRequest(request);
+                final RequestComposer composer = request.getRequestComposer();
+                final HttpRequestBase httpRequest = composer.composeRequest(this, request);
+                final HttpResponse httpResponse = HttpManager.sendRequest(httpRequest);
                 final ResponseHandler handler = request.getResponseHandler();
 
-                lastResponse = handler.handleResponse(this, httpResponse, request);
+                lastResultData = new Bundle();
+                lastResult = handler.handleResponse(this, httpResponse, request, lastResultData);
             } catch (Exception e) {
-                sendError(e, token);
+                sendError(token, e);
                 return;
             }
         }
 
-        final Bundle resultBundle = new Bundle();
-        if (lastResponse == null) lastResponse = new Response(true);
+        if (lastResultData == null) lastResultData = new Bundle();
+        lastResultData.putInt(EXTRA_TOKEN, token);
 
-        resultBundle.putInt(EXTRA_TOKEN, token);
-        resultBundle.putParcelable(EXTRA_RESPONSE, lastResponse);
-
-        sendResult(STATUS_OK, resultBundle);
+        if (lastResult) {
+            sendResult(STATUS_REQUEST_SUCCESS, lastResultData);
+        } else {
+            sendResult(STATUS_REQUEST_FAILED, lastResultData);
+        }
     }
 
     private void sendResult(int resultCode, Bundle resultData) {
@@ -96,10 +103,10 @@ public class RequestService extends WakefulIntentService {
         }
     }
 
-    protected void sendError(Exception e, int token) {
+    protected void sendError(int token, Exception e) {
         LOG.error(e.getMessage(), e);
         Bundle bundle = new Bundle();
-        bundle.putSerializable(EXTRA_RESPONSE_ERROR_CODE, e);
+        bundle.putSerializable(EXTRA_RESPONSE_EXCEPTION, e);
         bundle.putInt(EXTRA_TOKEN, token);
         sendResult(STATUS_ERROR, bundle);
     }

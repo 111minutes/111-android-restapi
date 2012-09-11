@@ -28,6 +28,7 @@ public class Request implements Parcelable {
     private RequestMethod mRequestMethod;
 
     private Class<? extends ResponseHandler> mResponseHandler;
+    private Class<? extends RequestComposer> mRequestComposer;
 
     public enum RequestMethod {
         POST, GET, PUT, DELETE
@@ -41,7 +42,8 @@ public class Request implements Parcelable {
         mHeaderParams = new Bundle();
 
         mRequestMethod = requestMethod;
-        mResponseHandler = EmptyResponseHandler.class;
+        mResponseHandler = DefaultResponseHandler.class;
+        mRequestComposer = DefaultRequestComposer.class;
     }
 
     /**
@@ -94,7 +96,22 @@ public class Request implements Parcelable {
         } catch (InstantiationException e) {
             LOG.error(e.getMessage(), e);
         }
-        return null;
+        return new DefaultResponseHandler();
+    }
+
+    public RequestComposer getRequestComposer() {
+        try {
+            return mRequestComposer.newInstance();
+        } catch (IllegalAccessException e) {
+            LOG.error(e.getMessage(), e);
+        } catch (InstantiationException e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return new DefaultRequestComposer();
+    }
+
+    public void setRequestComposer(Class<? extends RequestComposer> requestComposer) {
+        mRequestComposer = requestComposer;
     }
 
     private void setResponseHandler(Class<? extends ResponseHandler> responseHandler) {
@@ -138,12 +155,20 @@ public class Request implements Parcelable {
         mStringEntity = in.readString();
 
         String handlerClassName = in.readString();
-        mRequestMethod = RequestMethod.valueOf(in.readString());
         try {
             mResponseHandler = (Class<? extends ResponseHandler>) Class.forName(handlerClassName);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+        String composerClassName = in.readString();
+        try {
+            mRequestComposer = (Class<? extends RequestComposer>) Class.forName(composerClassName);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        mRequestMethod = RequestMethod.valueOf(in.readString());
     }
 
     @Override
@@ -154,6 +179,7 @@ public class Request implements Parcelable {
         dest.writeBundle(mHeaderParams);
         dest.writeString(mStringEntity);
         dest.writeString(mResponseHandler.getName());
+        dest.writeString(mRequestComposer.getName());
         dest.writeString(mRequestMethod.name());
     }
 

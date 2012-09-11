@@ -1,6 +1,7 @@
 package com.the111min.android.api;
 
 import android.app.Activity;
+import android.os.Bundle;
 
 /**
  * Listening {@link Activity} must implements {@link ResponseReceiver} for
@@ -11,11 +12,17 @@ public interface ResponseReceiver {
     /**
      * Notifies about successfull {@link Request} execution
      */
-    public void onRequestSuccess(int token, Response response);
+    public void onRequestSuccess(int token, Bundle result);
 
     /**
-     * Notifies about error {@link Request} execution
+     * Notifies about failed {@link Request} execution
      */
-    public void onRequestError(int token, Exception errorCode);
+    public void onRequestFailure(int token, Bundle result);
+
+    /**
+     * @param token
+     * @param e
+     */
+    public void onError(int token, Exception e);
 
 }

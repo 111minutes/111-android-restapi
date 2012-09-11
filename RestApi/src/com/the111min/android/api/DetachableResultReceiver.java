@@ -47,15 +47,18 @@ class DetachableResultReceiver extends ResultReceiver {
         if (mReceiver != null) {
             int token = resultData.getInt(RequestService.EXTRA_TOKEN, -1);
             switch (resultCode) {
-                case RequestService.STATUS_OK:
-                    final Response response = resultData.getParcelable(RequestService.EXTRA_RESPONSE);
-                    mReceiver.onRequestSuccess(token, response);
+                case RequestService.STATUS_REQUEST_SUCCESS:
+                    mReceiver.onRequestSuccess(token, resultData);
+                    break;
+
+                case RequestService.STATUS_REQUEST_FAILED:
+                    mReceiver.onRequestFailure(token, resultData);
                     break;
 
                 case RequestService.STATUS_ERROR:
                     final Exception exception = (Exception) resultData.getSerializable(
-                            RequestService.EXTRA_RESPONSE_ERROR_CODE);
-                    mReceiver.onRequestError(token, exception);
+                            RequestService.EXTRA_RESPONSE_EXCEPTION);
+                    mReceiver.onError(token, exception);
                     break;
 
             }
