@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import com.the111min.android.api.Response;
 import com.the111min.android.api.ResponseReceiver;
 
 import java.util.ArrayList;
@@ -20,14 +19,19 @@ public class DemoActivity extends ListActivity implements ResponseReceiver {
     }
 
     @Override
-    public void onRequestSuccess(int token, Response response) {
-        ArrayList<String> list = response.getResults().getStringArrayList("list");
+    public void onRequestSuccess(int token, Bundle result) {
+        ArrayList<String> list = result.getStringArrayList("list");
         setListAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
     }
 
     @Override
-    public void onRequestError(int token, Exception errorCode) {
-        Toast.makeText(this, errorCode.getMessage(), Toast.LENGTH_LONG).show();
+    public void onRequestFailure(int token, Bundle result) {
+        Toast.makeText(this, "Handle error in ResponseHandler", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onError(int token, Exception e) {
+        Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
     }
 
 }

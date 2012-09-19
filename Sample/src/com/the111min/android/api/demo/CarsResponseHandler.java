@@ -1,10 +1,10 @@
 package com.the111min.android.api.demo;
 
 import android.content.Context;
+import android.os.Bundle;
 
 import com.the111min.android.api.HttpUtils;
 import com.the111min.android.api.Request;
-import com.the111min.android.api.Response;
 import com.the111min.android.api.ResponseHandler;
 
 import org.apache.http.HttpResponse;
@@ -16,8 +16,8 @@ import java.util.ArrayList;
 public class CarsResponseHandler extends ResponseHandler {
 
     @Override
-    public Response handleResponse(Context context, HttpResponse response, Request request)
-            throws Exception {
+    public boolean handleResponse(Context context, HttpResponse response, Request request,
+            Bundle result) throws Exception {
         final String text = HttpUtils.readHttpResponse(response);
 
         final JSONObject obj = new JSONObject(text);
@@ -30,10 +30,9 @@ public class CarsResponseHandler extends ResponseHandler {
             strings.add(item.getString("name"));
         }
 
-        final Response result = new Response(true);
-        result.addStringArrayResult("list", strings);
+        result.putStringArrayList("list", strings);
 
-        return result;
+        return true;
     }
 
 }
