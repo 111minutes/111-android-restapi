@@ -34,6 +34,7 @@ public class DefaultRequestComposer extends RequestComposer {
     private static final Logger LOG = LoggerFactory.getLogger(TAG);
 
     private static final String ENCODING_GZIP = "gzip";
+    private static final String CONTENT_TYPE_GZIP_JSON = "gzip/json";
 
     @Override
     public HttpRequestBase composeRequest(Context context, Request request)
@@ -71,7 +72,7 @@ public class DefaultRequestComposer extends RequestComposer {
             //entity = new StringEntity(request.getStringEntity(), "UTF-8");
             entity = toGzippedEntity(request.getStringEntity());
             //TODO: add ability to set content type
-            entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "gzip/json"));
+            entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, CONTENT_TYPE_GZIP_JSON));
             entity.setContentEncoding(ENCODING_GZIP);
 
             LOG.debug("request body: " + request.getStringEntity());

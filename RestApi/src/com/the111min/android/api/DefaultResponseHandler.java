@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implement the interface to parsing response from server.
+ * Implement the interface to handle response from server.
  */
 public class DefaultResponseHandler extends ResponseHandler {
 
