@@ -19,3 +19,4 @@ proguard.cfg
 *.DS_Store
 *.class
 *.checkstyle
+.pmd

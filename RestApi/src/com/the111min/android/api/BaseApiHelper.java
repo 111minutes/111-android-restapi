@@ -11,9 +11,9 @@ import java.util.ArrayList;
  */
 public abstract class BaseApiHelper {
 
-    public static int DEFAULT_TOKEN = -1;
+    public static final int DEFAULT_TOKEN = -1;
 
-    protected Context mContext;
+    protected final Context mContext;
     protected DetachableResultReceiver mResultReceiver;
 
     protected BaseApiHelper(Context context, ResponseReceiver receiver) {
