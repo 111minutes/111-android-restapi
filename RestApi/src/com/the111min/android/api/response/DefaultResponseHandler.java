@@ -1,7 +1,10 @@
-package com.the111min.android.api;
+package com.the111min.android.api.response;
 
 import android.content.Context;
 import android.os.Bundle;
+
+import com.the111min.android.api.HttpUtils;
+import com.the111min.android.api.request.Request;
 
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;

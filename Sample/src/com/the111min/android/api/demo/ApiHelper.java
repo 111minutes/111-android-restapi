@@ -3,10 +3,9 @@ package com.the111min.android.api.demo;
 import android.content.Context;
 
 import com.the111min.android.api.BaseApiHelper;
-import com.the111min.android.api.Request;
-import com.the111min.android.api.Request.Builder;
-import com.the111min.android.api.Request.RequestMethod;
-import com.the111min.android.api.ResponseReceiver;
+import com.the111min.android.api.request.Request;
+import com.the111min.android.api.request.Request.RequestMethod;
+import com.the111min.android.api.response.ResponseReceiver;
 
 public class ApiHelper extends BaseApiHelper {
 
@@ -15,12 +14,9 @@ public class ApiHelper extends BaseApiHelper {
     }
 
     public void getCarMakes() {
-        Request.Builder builder = new Builder(
-                "http://buyersguide.caranddriver.com/api/feed/?mode=json&q=make",
-                RequestMethod.GET)
+        Request.Builder builder = new Request.Builder(
+                "http://buyersguide.caranddriver.com/api/feed/?mode=json&q=make", RequestMethod.GET)
                 .setResponseHandler(CarsResponseHandler.class);
-        //.addBodyParam(key, value)
-        //.addHeaderParam(key, value);
 
         sendRequest(builder.create());
     }

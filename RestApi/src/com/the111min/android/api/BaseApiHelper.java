@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 
+import com.the111min.android.api.request.Request;
+import com.the111min.android.api.response.ResponseReceiver;
+
 import java.util.ArrayList;
 
 /**

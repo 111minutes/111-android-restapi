@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import com.the111min.android.api.ResponseReceiver;
+import com.the111min.android.api.response.ResponseReceiver;
 
 import java.util.ArrayList;
 

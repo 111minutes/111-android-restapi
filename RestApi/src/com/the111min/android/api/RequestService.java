@@ -9,6 +9,10 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
+import com.the111min.android.api.request.Request;
+import com.the111min.android.api.request.RequestComposer;
+import com.the111min.android.api.response.ResponseHandler;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.apache.http.HttpResponse;

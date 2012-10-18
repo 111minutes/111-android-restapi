@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.the111min.android.api.HttpUtils;
-import com.the111min.android.api.Request;
-import com.the111min.android.api.ResponseHandler;
+import com.the111min.android.api.request.Request;
+import com.the111min.android.api.response.ResponseHandler;
 
 import org.apache.http.HttpResponse;
 import org.json.JSONArray;

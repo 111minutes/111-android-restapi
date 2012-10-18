@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 
+import com.the111min.android.api.response.ResponseReceiver;
+
 /**
  * Proxy {@link ResultReceiver} that offers a listener interface that can be
  * detached. Useful for when sending callbacks to a {@link Service} where a

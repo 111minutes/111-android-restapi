@@ -1,12 +1,17 @@
-package com.the111min.android.api;
+package com.the111min.android.api.request;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.the111min.android.api.response.DefaultResponseHandler;
+import com.the111min.android.api.response.ResponseHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
 
 /**
  * Use for: 1. Set header and body parameters for http request; 2. Pass data
@@ -17,15 +22,12 @@ public class Request implements Parcelable {
     private static final String TAG = Request.class.getSimpleName();
     private static final Logger LOG = LoggerFactory.getLogger(TAG);
 
-    private String mEndpoint;
+    private final String mEndpoint;
+    private final RequestMethod mRequestMethod;
 
-    private Bundle mBodyParams;
-    private Bundle mHeaderParams;
-    private Bundle mTemporaryData;
-
-    private String mStringEntity;
-
-    private RequestMethod mRequestMethod;
+    private final HashMap<String, String> mHeaders;
+    private final Bundle mEntityData;
+    private final Bundle mTemporaryData;
 
     private Class<? extends ResponseHandler> mResponseHandler;
     private Class<? extends RequestComposer> mRequestComposer;
@@ -36,14 +38,39 @@ public class Request implements Parcelable {
 
     private Request(String endpoint, RequestMethod requestMethod) {
         mEndpoint = endpoint;
-
-        mBodyParams = new Bundle();
-        mTemporaryData = new Bundle();
-        mHeaderParams = new Bundle();
-
         mRequestMethod = requestMethod;
+
+        mHeaders = new HashMap<String, String>();
+        mEntityData = new Bundle();
+        mTemporaryData = new Bundle();
+
         mResponseHandler = DefaultResponseHandler.class;
         mRequestComposer = DefaultRequestComposer.class;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Request(Parcel in) {
+        mEndpoint = in.readString();
+        mHeaders = in.readHashMap(Request.class.getClassLoader());
+
+        mEntityData = in.readBundle();
+        mTemporaryData = in.readBundle();
+
+        String handlerClassName = in.readString();
+        try {
+            mResponseHandler = (Class<? extends ResponseHandler>) Class.forName(handlerClassName);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String composerClassName = in.readString();
+        try {
+            mRequestComposer = (Class<? extends RequestComposer>) Class.forName(composerClassName);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        mRequestMethod = RequestMethod.valueOf(in.readString());
     }
 
     /**
@@ -51,10 +78,6 @@ public class Request implements Parcelable {
      */
     public RequestMethod getRequestMethod() {
         return mRequestMethod;
-    }
-
-    public String getStringEntity() {
-        return mStringEntity;
     }
 
     /**
@@ -67,15 +90,15 @@ public class Request implements Parcelable {
     /**
      * @return
      */
-    public Bundle getHeaders() {
-        return mHeaderParams;
+    public HashMap<String, String> getHeaders() {
+        return mHeaders;
     }
 
     /**
      * @return
      */
-    public Bundle getBodyParams() {
-        return mBodyParams;
+    public Bundle getEntityData() {
+        return mEntityData;
     }
 
     /**
@@ -110,74 +133,13 @@ public class Request implements Parcelable {
         return new DefaultRequestComposer();
     }
 
-    public void setRequestComposer(Class<? extends RequestComposer> requestComposer) {
-        mRequestComposer = requestComposer;
-    }
-
-    private void setResponseHandler(Class<? extends ResponseHandler> responseHandler) {
-        mResponseHandler = responseHandler;
-    }
-
-    private void setEntity(String string) {
-        mStringEntity = string;
-    }
-
-    private void addHeaderParam(String key, String value) {
-        mHeaderParams.putString(key, value);
-    }
-
-    private void addBodyParam(String key, String value) {
-        mBodyParams.putString(key, value);
-    }
-
-    private void addBodyParam(String key, int value) {
-        mBodyParams.putString(key, String.valueOf(value));
-    }
-
-    private void addTemporaryData(String key, int value) {
-        mTemporaryData.putInt(key, value);
-    }
-
-    private void addTemporaryData(String key, String value) {
-        mTemporaryData.putString(key, value);
-    }
-
-    private void addTemporaryData(String key, boolean value) {
-        mTemporaryData.putBoolean(key, value);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Request(Parcel in) {
-        mEndpoint = in.readString();
-        mBodyParams = in.readBundle();
-        mTemporaryData = in.readBundle();
-        mHeaderParams = in.readBundle();
-        mStringEntity = in.readString();
-
-        String handlerClassName = in.readString();
-        try {
-            mResponseHandler = (Class<? extends ResponseHandler>) Class.forName(handlerClassName);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        String composerClassName = in.readString();
-        try {
-            mRequestComposer = (Class<? extends RequestComposer>) Class.forName(composerClassName);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        mRequestMethod = RequestMethod.valueOf(in.readString());
-    }
-
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mEndpoint);
-        dest.writeBundle(mBodyParams);
+        dest.writeMap(mHeaders);
+        dest.writeBundle(mEntityData);
         dest.writeBundle(mTemporaryData);
-        dest.writeBundle(mHeaderParams);
-        dest.writeString(mStringEntity);
+
         dest.writeString(mResponseHandler.getName());
         dest.writeString(mRequestComposer.getName());
         dest.writeString(mRequestMethod.name());
@@ -185,10 +147,12 @@ public class Request implements Parcelable {
 
     public static final Parcelable.Creator<Request> CREATOR = new Parcelable.Creator<Request>() {
 
+        @Override
         public Request createFromParcel(Parcel in) {
             return new Request(in);
         }
 
+        @Override
         public Request[] newArray(int size) {
             return new Request[size];
         }
@@ -199,17 +163,9 @@ public class Request implements Parcelable {
         return 0;
     }
 
-    @Override
-    public String toString() {
-        return "Request [mEndpoint=" + mEndpoint + ", mBodyParams=" + mBodyParams
-                + ", mHeaderParams=" + mHeaderParams + ", mTemporaryData=" + mTemporaryData
-                + ", mStringEntity=" + mStringEntity + ", mRequestMethod=" + mRequestMethod
-                + ", mResponseHandler=" + mResponseHandler + "]";
-    }
-
     public static class Builder {
 
-        private Request mRequest;
+        private final Request mRequest;
 
         /**
          * @param endpoint
@@ -224,7 +180,7 @@ public class Request implements Parcelable {
          * @return
          */
         public Builder setResponseHandler(Class<? extends ResponseHandler> responseHandler) {
-            mRequest.setResponseHandler(responseHandler);
+            mRequest.mResponseHandler = responseHandler;
             return this;
         }
 
@@ -233,17 +189,7 @@ public class Request implements Parcelable {
          * @return
          */
         public Builder setRequestComposer(Class<? extends RequestComposer> requestComposer) {
-            mRequest.setRequestComposer(requestComposer);
-            return this;
-        }
-
-        /**
-         * When StringEntity is set, all bodyParams are ignored. 
-         * @param entity
-         * @return
-         */
-        public Builder setStringEntity(String string) {
-            mRequest.setEntity(string);
+            mRequest.mRequestComposer = requestComposer;
             return this;
         }
 
@@ -253,27 +199,7 @@ public class Request implements Parcelable {
          * @return
          */
         public Builder addHeaderParam(String key, String value) {
-            mRequest.addHeaderParam(key, value);
-            return this;
-        }
-
-        /**
-         * @param key
-         * @param value
-         * @return
-         */
-        public Builder addBodyParam(String key, String value) {
-            mRequest.addBodyParam(key, value);
-            return this;
-        }
-
-        /**
-         * @param key
-         * @param value
-         * @return
-         */
-        public Builder addBodyParam(String key, int value) {
-            mRequest.addBodyParam(key, value);
+            mRequest.mHeaders.put(key, value);
             return this;
         }
 
@@ -283,7 +209,7 @@ public class Request implements Parcelable {
          * @return
          */
         public Builder addTemporaryData(String key, int value) {
-            mRequest.addTemporaryData(key, value);
+            mRequest.mTemporaryData.putInt(key, value);
             return this;
         }
 
@@ -293,7 +219,7 @@ public class Request implements Parcelable {
          * @return
          */
         public Builder addTemporaryData(String key, String value) {
-            mRequest.addTemporaryData(key, value);
+            mRequest.mTemporaryData.putString(key, value);
             return this;
         }
 
@@ -303,7 +229,7 @@ public class Request implements Parcelable {
          * @return
          */
         public Builder addTemporaryData(String key, boolean value) {
-            mRequest.addTemporaryData(key, value);
+            mRequest.mTemporaryData.putBoolean(key, value);
             return this;
         }
 
