@@ -204,6 +204,13 @@ public class Request implements Parcelable {
         }
 
         /**
+         * @return
+         */
+        public Bundle getEntityData() {
+            return mRequest.mEntityData;
+        }
+
+        /**
          * @param key
          * @param value
          * @return
