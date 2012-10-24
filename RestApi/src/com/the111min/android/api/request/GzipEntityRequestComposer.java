@@ -1,5 +1,6 @@
 package com.the111min.android.api.request;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
@@ -52,10 +53,11 @@ public class GzipEntityRequestComposer extends RequestComposer {
     }
 
     @Override
-    protected void setupEntity(AbstractHttpEntity entity) {
+    protected void setupEntity(HttpEntity entity) {
         super.setupEntity(entity);
-        entity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, CONTENT_TYPE_GZIP_JSON));
-        entity.setContentEncoding(ENCODING_GZIP);
+        AbstractHttpEntity absEntity = (AbstractHttpEntity) entity;
+        absEntity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, CONTENT_TYPE_GZIP_JSON));
+        absEntity.setContentEncoding(ENCODING_GZIP);
     }
 
     @Override
