@@ -5,12 +5,12 @@ import android.content.Context;
 import com.the111min.android.api.request.Request.RequestMethod;
 import com.the111min.android.api.util.Logger;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.AbstractHttpEntity;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -21,7 +21,7 @@ public abstract class RequestComposer {
 
     private static final Logger LOG = Logger.getInstance(RequestComposer.class.getSimpleName());
 
-    protected abstract AbstractHttpEntity getEntity(Request request) throws UnsupportedEncodingException;
+    protected abstract HttpEntity getEntity(Request request) throws UnsupportedEncodingException;
 
     public HttpRequestBase composeRequest(Context context, Request request) throws URISyntaxException,
             UnsupportedEncodingException {
@@ -37,7 +37,7 @@ public abstract class RequestComposer {
      * Override to add content type, content encoding
      * @param entity
      */
-    protected void setupEntity(AbstractHttpEntity entity) {
+    protected void setupEntity(HttpEntity entity) {
     }
 
     /**
@@ -60,7 +60,7 @@ public abstract class RequestComposer {
             case POST:
                 LOG.d("Sending POST " + request.getEndpoint());
                 final HttpPost post = new HttpPost(uri);
-                final AbstractHttpEntity postEntity = getEntity(request);
+                final HttpEntity postEntity = getEntity(request);
                 setupEntity(postEntity);
                 post.setEntity(postEntity);
 
@@ -69,7 +69,7 @@ public abstract class RequestComposer {
             case PUT:
                 LOG.d("Sending PUT " + request.getEndpoint());
                 final HttpPut put = new HttpPut(uri);
-                final AbstractHttpEntity putEntity = getEntity(request);
+                final HttpEntity putEntity = getEntity(request);
                 setupEntity(putEntity);
                 put.setEntity(putEntity);
 
