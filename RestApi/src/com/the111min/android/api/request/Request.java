@@ -7,9 +7,7 @@ import android.os.Parcelable;
 
 import com.the111min.android.api.response.DefaultResponseHandler;
 import com.the111min.android.api.response.ResponseHandler;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.the111min.android.api.util.Logger;
 
 import java.util.HashMap;
 
@@ -19,8 +17,7 @@ import java.util.HashMap;
  */
 public class Request implements Parcelable {
 
-    private static final String TAG = Request.class.getSimpleName();
-    private static final Logger LOG = LoggerFactory.getLogger(TAG);
+    private static final Logger LOG = Logger.getInstance(Request.class.getSimpleName());
 
     private final String mEndpoint;
     private final RequestMethod mRequestMethod;
@@ -115,9 +112,9 @@ public class Request implements Parcelable {
         try {
             return mResponseHandler.newInstance();
         } catch (IllegalAccessException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.e(e.getMessage(), e);
         } catch (InstantiationException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.e(e.getMessage(), e);
         }
         return new DefaultResponseHandler();
     }
@@ -126,9 +123,9 @@ public class Request implements Parcelable {
         try {
             return mRequestComposer.newInstance();
         } catch (IllegalAccessException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.e(e.getMessage(), e);
         } catch (InstantiationException e) {
-            LOG.error(e.getMessage(), e);
+            LOG.e(e.getMessage(), e);
         }
         return new DefaultRequestComposer();
     }

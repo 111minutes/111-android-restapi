@@ -3,6 +3,7 @@ package com.the111min.android.api.request;
 import android.content.Context;
 
 import com.the111min.android.api.request.Request.RequestMethod;
+import com.the111min.android.api.util.Logger;
 
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -10,8 +11,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.AbstractHttpEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -20,8 +19,7 @@ import java.util.HashMap;
 
 public abstract class RequestComposer {
 
-    private static final String TAG = RequestComposer.class.getSimpleName();
-    private static final Logger LOG = LoggerFactory.getLogger(TAG);
+    private static final Logger LOG = Logger.getInstance(RequestComposer.class.getSimpleName());
 
     protected abstract AbstractHttpEntity getEntity(Request request) throws UnsupportedEncodingException;
 
@@ -56,11 +54,11 @@ public abstract class RequestComposer {
 
         switch (method) {
             case GET:
-                LOG.debug("Sending GET " + request.getEndpoint());
+                LOG.d("Sending GET " + request.getEndpoint());
                 return new HttpGet(uri);
 
             case POST:
-                LOG.debug("Sending POST " + request.getEndpoint());
+                LOG.d("Sending POST " + request.getEndpoint());
                 final HttpPost post = new HttpPost(uri);
                 final AbstractHttpEntity postEntity = getEntity(request);
                 setupEntity(postEntity);
@@ -69,7 +67,7 @@ public abstract class RequestComposer {
                 return post;
 
             case PUT:
-                LOG.debug("Sending PUT " + request.getEndpoint());
+                LOG.d("Sending PUT " + request.getEndpoint());
                 final HttpPut put = new HttpPut(uri);
                 final AbstractHttpEntity putEntity = getEntity(request);
                 setupEntity(putEntity);
@@ -78,7 +76,7 @@ public abstract class RequestComposer {
                 return put;
 
             case DELETE:
-                LOG.debug("Sending DELETE " + request.getEndpoint());
+                LOG.d("Sending DELETE " + request.getEndpoint());
                 return new HttpDelete(uri);
 
             default:
@@ -91,7 +89,7 @@ public abstract class RequestComposer {
         final HashMap<String, String> headers = request.getHeaders();
         for (String key : headers.keySet()) {
             final String value = headers.get(key);
-            LOG.debug("Adding header {} : {}", key, value);
+            LOG.d("Adding header " + key + " : " + value);
             httpRequest.addHeader(key, value);
         }
     }

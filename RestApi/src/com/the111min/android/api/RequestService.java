@@ -12,13 +12,12 @@ import android.os.ResultReceiver;
 import com.the111min.android.api.request.Request;
 import com.the111min.android.api.request.RequestComposer;
 import com.the111min.android.api.response.ResponseHandler;
+import com.the111min.android.api.util.Logger;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
@@ -42,7 +41,7 @@ import java.util.ArrayList;
 public class RequestService extends WakefulIntentService {
 
     private static final String TAG = RequestService.class.getSimpleName();
-    private static final Logger LOG = LoggerFactory.getLogger(TAG);
+    private static final Logger LOG = Logger.getInstance(TAG);
 
     private static final String PACKAGE = "com.the111min.android.api.";
 
@@ -80,7 +79,7 @@ public class RequestService extends WakefulIntentService {
             try {
                 final RequestComposer composer = request.getRequestComposer();
                 final HttpRequestBase httpRequest = composer.composeRequest(this, request);
-                final HttpResponse httpResponse = HttpManager.sendRequest(httpRequest);
+                final HttpResponse httpResponse = HttpRequestSender.sendRequest(httpRequest);
                 final ResponseHandler handler = request.getResponseHandler();
 
                 lastResultData = new Bundle();
@@ -108,7 +107,7 @@ public class RequestService extends WakefulIntentService {
     }
 
     protected void sendError(int token, Exception e) {
-        LOG.error(e.getMessage(), e);
+        LOG.e(e.getMessage(), e);
         Bundle bundle = new Bundle();
         bundle.putSerializable(EXTRA_RESPONSE_EXCEPTION, e);
         bundle.putInt(EXTRA_TOKEN, token);

@@ -13,7 +13,7 @@ import java.net.URISyntaxException;
 /**
  * This class manages connection to server via POST, GET, PUT, DELETE methods.
  */
-class HttpManager {
+class HttpRequestSender {
 
     private static DefaultHttpClient sHttpClient;
 

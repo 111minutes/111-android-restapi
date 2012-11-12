@@ -1,12 +1,12 @@
 package com.the111min.android.api.request;
 
+import com.the111min.android.api.util.Logger;
+
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,8 +15,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class GzipEntityRequestComposer extends RequestComposer {
 
-    private static final String TAG = DefaultRequestComposer.class.getSimpleName();
-    private static final Logger LOG = LoggerFactory.getLogger(TAG);
+    private static final Logger LOG = Logger.getInstance(DefaultRequestComposer.class.getSimpleName());
 
     private static final String ENCODING_GZIP = "gzip";
     private static final String CONTENT_TYPE_GZIP_JSON = "gzip/json";
@@ -37,7 +36,7 @@ public class GzipEntityRequestComposer extends RequestComposer {
             gzos = new GZIPOutputStream(baos);
             gzos.write(text.getBytes("UTF-8"));
         } catch (IOException e1) {
-            LOG.error(e1.getMessage(), e1);
+            LOG.e(e1.getMessage(), e1);
         } finally {
             if (gzos != null) try {
                 gzos.close();

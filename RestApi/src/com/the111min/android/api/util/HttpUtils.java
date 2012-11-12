@@ -1,4 +1,4 @@
-package com.the111min.android.api;
+package com.the111min.android.api.util;
 
 import android.os.Bundle;
 
