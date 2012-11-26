@@ -9,12 +9,19 @@ Major features:
  * Sending List<Request> is supported
  * Http MultipartEntity is supported
  * Partial wake lock is aquired for service
- * [Logback-android][2] logging icluded
- * [cwac-wakeful][3] is included
+ * [cwac-wakeful][2] is included
 
 
 Change Log
 ==========
+
+Version 15
+---------
+ * Logback removed
+
+Version 10-14.
+---------
+ * See commit log...
 
 Version 9
 ---------
@@ -23,8 +30,7 @@ Version 9
 Roadmap
 =======
  * Add javadocs
- * Cleanup `DefaultRequestComposer`
- * Add ability to set Content type, Content encoding, gzip
+
 
 Developed By
 ============
@@ -32,5 +38,4 @@ Developed By
 * 111 minutes android team - http://111minutes.com
 
  [1]: http://www.google.com/events/io/2010/sessions/developing-RESTful-android-apps.html
- [2]: http://tony19.github.com/logback-android/
- [3]: https://github.com/commonsguy/cwac-wakeful
+ [2]: https://github.com/commonsguy/cwac-wakeful
